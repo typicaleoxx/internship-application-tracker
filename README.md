@@ -1,2 +1,10 @@
 # internship-application-tracker
-This is an application tracker for internships that is implemented via doubly linked lists.
+The Internship Application Tracker is a C++ project designed to help students organize information about internship applications. 
+
+Features:
+Create and store individual internship applications
+Displays information about applications
+Allows for updates of individual fields
+
+Future Improvements:
+Sorting by date/status
