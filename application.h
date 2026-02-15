@@ -58,6 +58,9 @@ public:
     // compares two applications for equality based on all fields
     bool operator==(const Application& other) const;
 
+    // compares two applications for inequality
+    bool operator!=(const Application& other) const;
+
     // allows printing an application object directly to an output stream
     friend std::ostream& operator<<(std::ostream& os, const Application& app);
 

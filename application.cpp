@@ -103,6 +103,11 @@ bool Application::operator==(const Application& other) const {
            notes == other.notes;
 }
 
+// compare two applications for inequality
+bool Application::operator!=(const Application& other) const {
+    return !(*this == other);
+}
+
 // output stream operator for easy printing of application objects
 std::ostream& operator<<(std::ostream& os, const Application& app) {
     os << "Company: " << app.company << "\n"
