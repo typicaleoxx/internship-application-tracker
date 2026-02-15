@@ -58,5 +58,9 @@ public:
             delete (curr);
             curr = next;
         }
+    
+    insertAtHead(T value){
+        
+    }
     }
 };
