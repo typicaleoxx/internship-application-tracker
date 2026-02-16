@@ -362,6 +362,18 @@ public:
         }
         return &(head->data);
     }
+
+    // helper method to get node by index (for iteration)
+    T* getAt(int index) const {
+        if (index < 0 || index >= count) {
+            return nullptr;
+        }
+        Node* curr = head;
+        for (int i = 0; i < index; i++) {
+            curr = curr->next;
+        }
+        return &(curr->data);
+    }
 };
 
 #endif

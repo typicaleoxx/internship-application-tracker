@@ -1,162 +1,194 @@
 /*
 main.cpp - internship application tracker
-this program demonstrates using a doubly linked list to track internship applications
-we'll add, remove, search, and update applications to show how the data structure works
+interactive menu-driven CLI program for tracking internship applications
 */
 
 #include <iostream>
+#include <string>
 #include <cstdlib>
 #include "application.h"
 #include "doublyLinkedList.h"
 
+void displayMenu() {
+    std::cout << "\nInternship Application Tracker\n" << std::endl;
+    std::cout << "1. Add application" << std::endl;
+    std::cout << "2. View all applications" << std::endl;
+    std::cout << "3. Search by company name" << std::endl;
+    std::cout << "4. Update application status" << std::endl;
+    std::cout << "5. Delete an application" << std::endl;
+    std::cout << "6. Print in reverse order" << std::endl;
+    std::cout << "7. Exit" << std::endl;
+    std::cout << "\nEnter your choice: ";
+}
+
+void addApplication(DoublyLinkedList<Application>& apps) {
+    std::string company, role, location, status, date, notes;
+    
+    std::cout << "\n--- Add Application ---" << std::endl;
+    std::cout << "Company name: ";
+    std::getline(std::cin, company);
+    
+    std::cout << "Job role: ";
+    std::getline(std::cin, role);
+    
+    std::cout << "Location: ";
+    std::getline(std::cin, location);
+    
+    std::cout << "Status (Applied/Interview Scheduled/Offer/Rejected): ";
+    std::getline(std::cin, status);
+    
+    std::cout << "Date applied (YYYY-MM-DD): ";
+    std::getline(std::cin, date);
+    
+    std::cout << "Notes: ";
+    std::getline(std::cin, notes);
+    
+    Application newApp(company, role, location, status, date, notes);
+    apps.insertAtTail(newApp);
+    std::cout << "\nApplication added successfully." << std::endl;
+}
+
+void viewAllApplications(DoublyLinkedList<Application>& apps) {
+    std::cout << "\n--- All Applications ---" << std::endl;
+    if (apps.size() == 0) {
+        std::cout << "No applications found." << std::endl;
+        return;
+    }
+    std::cout << "Total: " << apps.size() << std::endl << std::endl;
+    apps.printList();
+}
+
+void searchByCompany(DoublyLinkedList<Application>& apps) {
+    std::string companyName;
+    
+    std::cout << "\n--- Search Application ---" << std::endl;
+    std::cout << "Enter company name: ";
+    std::getline(std::cin, companyName);
+    
+    bool found = false;
+    
+    // traverse the list manually and search by company name
+    for (int i = 0; i < apps.size(); i++) {
+        Application* app = apps.getAt(i);
+        if (app != nullptr && app->getCompany() == companyName) {
+            std::cout << "\nFound application:" << std::endl;
+            app->display();
+            found = true;
+            break;
+        }
+    }
+    
+    if (!found) {
+        std::cout << "Application not found." << std::endl;
+    }
+}
+
+void updateApplicationStatus(DoublyLinkedList<Application>& apps) {
+    std::string companyName, newStatus, newNotes;
+    
+    std::cout << "\n--- Update Application ---" << std::endl;
+    std::cout << "Enter company name to update: ";
+    std::getline(std::cin, companyName);
+    
+    bool found = false;
+    
+    // traverse the list and find the application by company name
+    for (int i = 0; i < apps.size(); i++) {
+        Application* app = apps.getAt(i);
+        if (app != nullptr && app->getCompany() == companyName) {
+            std::cout << "New status: ";
+            std::getline(std::cin, newStatus);
+            
+            std::cout << "New notes: ";
+            std::getline(std::cin, newNotes);
+            
+            app->updateStatus(newStatus);
+            app->updateNotes(newNotes);
+            
+            std::cout << "\nApplication updated successfully." << std::endl;
+            found = true;
+            break;
+        }
+    }
+    
+    if (!found) {
+        std::cout << "Application not found." << std::endl;
+    }
+}
+
+void deleteApplication(DoublyLinkedList<Application>& apps) {
+    std::string companyName;
+    
+    std::cout << "\n--- Delete Application ---" << std::endl;
+    std::cout << "Enter company name to delete: ";
+    std::getline(std::cin, companyName);
+    
+    bool found = false;
+    
+    // traverse the list and find the application by company name
+    for (int i = 0; i < apps.size(); i++) {
+        Application* app = apps.getAt(i);
+        if (app != nullptr && app->getCompany() == companyName) {
+            // delete by creating a temporary with the same data and using deleteByValue
+            Application toDelete = *app;
+            if (apps.deleteByValue(toDelete)) {
+                std::cout << "\nApplication deleted successfully." << std::endl;
+                found = true;
+            }
+            break;
+        }
+    }
+    
+    if (!found) {
+        std::cout << "Application not found." << std::endl;
+    }
+}
+
+void printReverse(DoublyLinkedList<Application>& apps) {
+    std::cout << "\n--- Applications (Reverse Order) ---" << std::endl;
+    if (apps.size() == 0) {
+        std::cout << "No applications found." << std::endl;
+        return;
+    }
+    apps.printReverse();
+}
+
 int main() {
-    std::cout << "======================================" << std::endl;
-    std::cout << "  INTERNSHIP APPLICATION TRACKER" << std::endl;
-    std::cout << "======================================" << std::endl << std::endl;
-
-    // create our doubly linked list to store all applications
     DoublyLinkedList<Application> myApplications;
-
-    std::cout << "Starting with an empty list..." << std::endl;
-    std::cout << "Current size: " << myApplications.size() << std::endl << std::endl;
-
-    // ========== INSERTING APPLICATIONS ==========
-    std::cout << "--- ADDING APPLICATIONS ---" << std::endl << std::endl;
-
-    // let's create some sample applications for different companies
-    std::cout << "1. Adding Google application at the HEAD" << std::endl;
-    Application google("Google", "Software Engineering Intern", "Mountain View, CA", 
-                      "Applied", "2026-01-15", "Referred by a friend");
-    myApplications.insertAtHead(google);
-    std::cout << "   Size now: " << myApplications.size() << std::endl << std::endl;
-
-    // add another one at the tail
-    std::cout << "2. Adding Amazon application at the TAIL" << std::endl;
-    Application amazon("Amazon", "SDE Intern", "Seattle, WA", 
-                      "Applied", "2026-01-20", "Applied through career portal");
-    myApplications.insertAtTail(amazon);
-    std::cout << "   Size now: " << myApplications.size() << std::endl << std::endl;
-
-    // add one more at the tail
-    std::cout << "3. Adding Microsoft application at the TAIL" << std::endl;
-    Application microsoft("Microsoft", "Software Engineer Intern", "Redmond, WA", 
-                         "Interview Scheduled", "2026-01-18", "First round on Feb 1");
-    myApplications.insertAtTail(microsoft);
-    std::cout << "   Size now: " << myApplications.size() << std::endl << std::endl;
-
-    // insert one at a specific position
-    std::cout << "4. Adding Meta application at POSITION 2" << std::endl;
-    Application meta("Meta", "Software Engineering Intern", "Menlo Park, CA", 
-                    "Applied", "2026-01-22", "Interested in React team");
-    myApplications.insertAtPos(meta, 2);
-    std::cout << "   Size now: " << myApplications.size() << std::endl << std::endl;
-
-    // add a couple more
-    std::cout << "5. Adding Apple application at the HEAD" << std::endl;
-    Application apple("Apple", "Software Engineering Intern", "Cupertino, CA", 
-                     "Applied", "2026-01-25", "Dream company!");
-    myApplications.insertAtHead(apple);
-    std::cout << "   Size now: " << myApplications.size() << std::endl << std::endl;
-
-    std::cout << "6. Adding Netflix application at the TAIL" << std::endl;
-    Application netflix("Netflix", "Backend Engineering Intern", "Los Gatos, CA", 
-                       "Not Applied", "TBD", "Need to update resume first");
-    myApplications.insertAtTail(netflix);
-    std::cout << "   Size now: " << myApplications.size() << std::endl << std::endl;
-
-    // ========== PRINTING THE LIST ==========
-    std::cout << "--- CURRENT LIST (forward) ---" << std::endl;
-    std::cout << "Total applications: " << myApplications.size() << std::endl << std::endl;
-    myApplications.printList();
-    std::cout << std::endl;
-
-    std::cout << "--- CURRENT LIST (reverse) ---" << std::endl;
-    myApplications.printReverse();
-    std::cout << std::endl;
-
-    // ========== SEARCHING ==========
-    std::cout << "--- SEARCHING FOR APPLICATIONS ---" << std::endl << std::endl;
-
-    std::cout << "Looking for Microsoft application..." << std::endl;
-    if (myApplications.search(microsoft) != nullptr) {
-        std::cout << "Found it! Here are the details:" << std::endl;
-        microsoft.display();
-    } else {
-        std::cout << "Not found!" << std::endl;
-    }
-    std::cout << std::endl;
-
-    // try searching for something that doesn't exist
-    Application fake("SpaceX", "Rocket Intern", "Mars", "Applied", "2025-12-01", "Out of this world!");
-    std::cout << "Looking for SpaceX application..." << std::endl;
-    if (myApplications.search(fake) != nullptr) {
-        std::cout << "Found it!" << std::endl;
-    } else {
-        std::cout << "Not found! (We haven't applied there yet)" << std::endl;
-    }
-    std::cout << std::endl;
-
-    // ========== UPDATING AN APPLICATION ==========
-    std::cout << "--- UPDATING APPLICATION STATUS ---" << std::endl << std::endl;
-
-    std::cout << "Great news! Google moved us to the interview stage!" << std::endl;
-    google.updateStatus("Interview Scheduled");
-    google.updateNotes("Phone screen scheduled for Feb 10");
-    std::cout << "Updated Google application:" << std::endl;
-    google.display();
-    std::cout << std::endl;
-
-    std::cout << "Unfortunately, Amazon rejected us..." << std::endl;
-    amazon.updateStatus("Rejected");
-    amazon.updateNotes("Didn't make it past resume screen");
-    std::cout << "Updated Amazon application:" << std::endl;
-    amazon.display();
-    std::cout << std::endl;
-
-    // ========== DELETING APPLICATIONS ==========
-    std::cout << "--- REMOVING APPLICATIONS ---" << std::endl << std::endl;
-
-    std::cout << "Removing the application at the HEAD" << std::endl;
-    myApplications.deleteAtHead();
-    std::cout << "Size after deleting head: " << myApplications.size() << std::endl << std::endl;
-
-    std::cout << "Removing the application at the END" << std::endl;
-    myApplications.deleteAtEnd();
-    std::cout << "Size after deleting tail: " << myApplications.size() << std::endl << std::endl;
-
-    std::cout << "Removing the application at POSITION 2" << std::endl;
-    myApplications.deleteAtPos(2);
-    std::cout << "Size after deleting position 2: " << myApplications.size() << std::endl << std::endl;
-
-    std::cout << "Let's see what's left..." << std::endl;
-    myApplications.printList();
-    std::cout << std::endl;
-
-    // delete by value
-    std::cout << "Removing Amazon application by value (since we got rejected)" << std::endl;
-    if (myApplications.deleteByValue(amazon)) {
-        std::cout << "Successfully removed Amazon!" << std::endl;
-    } else {
-        std::cout << "Couldn't find Amazon to remove" << std::endl;
-    }
-    std::cout << "Size after deleting Amazon: " << myApplications.size() << std::endl << std::endl;
-
-    // ========== FINAL STATE ==========
-    std::cout << "--- FINAL LIST ---" << std::endl;
-    std::cout << "Applications remaining: " << myApplications.size() << std::endl << std::endl;
-    myApplications.printList();
-    std::cout << std::endl;
-
-    // check if list is empty
-    if (myApplications.isEmpty()) {
-        std::cout << "The list is empty! Time to apply to more companies!" << std::endl;
-    } else {
-        std::cout << "Still tracking " << myApplications.size() << " application(s)!" << std::endl;
+    int choice;
+    std::string input;
+    
+    while (true) {
+        displayMenu();
+        std::getline(std::cin, input);
+        choice = atoi(input.c_str());
+        
+        switch (choice) {
+            case 1:
+                addApplication(myApplications);
+                break;
+            case 2:
+                viewAllApplications(myApplications);
+                break;
+            case 3:
+                searchByCompany(myApplications);
+                break;
+            case 4:
+                updateApplicationStatus(myApplications);
+                break;
+            case 5:
+                deleteApplication(myApplications);
+                break;
+            case 6:
+                printReverse(myApplications);
+                break;
+            case 7:
+                std::cout << "\nGoodbye." << std::endl;
+                return 0;
+            default:
+                std::cout << "\nInvalid choice. Try again." << std::endl;
+        }
     }
 
-    std::cout << std::endl << "======================================" << std::endl;
-    std::cout << "  THANKS FOR USING THE TRACKER!" << std::endl;
-    std::cout << "======================================" << std::endl;
-
-    return EXIT_SUCCESS;
+    return 0;
 }
